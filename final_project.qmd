@@ -1,0 +1,92 @@
+---
+title: "final-project"
+format: html
+editor: visual
+output:
+  quarto::pdf_document:
+    latex_engine: xelatex
+---
+
+```{r}
+# Load the packages, data and clean variable names
+install.packages("gtsummary")
+install.packages("usethis")
+install.packages("janitor")
+library(janitor)
+library(usethis)
+library(tidyverse)
+library(tidycat)
+library(broom)
+library(gtsummary)
+library(ggplot2)
+
+load(here::here("data", "raw", "diabetes.rda"))
+diabetes <- diabetes %>% janitor::clean_names()
+
+```
+
+You can add options to executable code like this
+
+```{r}
+# Create a {gtsummary} table of descriptive statistics
+tbl_summary(
+  diabetes,
+  by = diabetes_5y,
+  include = c(age, bmi, pregnancy_num, glucose_mg_dl, dbp_mm_hg, triceps_mm,
+               insulin_microiu_ml, pedigree),
+  label = list(
+    age ~ "Age (years)",
+    bmi ~ "Body mass index (kg/m2)",
+    pregnancy_num ~ "Number of pregnancies",
+    glucose_mg_dl ~ "Plasma glucose concentration at 2 hours (mg-dl)",
+    dbp_mm_hg ~ "Diastolic blood pressure (mm Hg)",
+    triceps_mm ~ "Triceps skin fold thickness (mm)",
+    insulin_microiu_ml ~ "Serum insulin at 2 hours (microIU/ml)",
+    pedigree ~ "Diabetes pedigree score"
+  ),
+  missing_text = "Missing"
+) |>
+add_p(
+  test = list(
+    all_continuous() ~ "t.test",
+    all_categorical() ~ "chisq.test"
+  )
+) |>
+add_overall(col_label = "**Total**") |>
+bold_labels() |>
+modify_footnote(update = everything() ~ NA) |>
+modify_header(label = "**Variable**", p.value = "**P**")
+
+```
+
+### **Regression Analysis**
+
+### fit a regression model to predict diabetes_5y (binary variable) using pedigree(continuous variable).
+
+```{r}
+# Fit a logistic regression model
+logistic_model <- glm(diabetes_5y ~ pedigree, data = diabetes, family = binomial)
+
+```
+
+## **Results**
+
+### **Regression Results**
+
+The regression model summary is as follows:
+
+```{r}
+# Display regression model summary
+summary(logistic_model)
+
+```
+
+### **Histogram of Age**
+
+Create a histogram to visualize the distribution of the age variable.
+
+```{r}
+# Create a histogram of the 'age' variable
+hist(diabetes$age, main = "Histogram of Age", xlab = "Age (years)")
+
+```
