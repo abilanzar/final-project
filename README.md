@@ -4,3 +4,5 @@
 Create table
 
 regression analysis
+
+Create histogram
