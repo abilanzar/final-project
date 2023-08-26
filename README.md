@@ -2,3 +2,5 @@
 #Nanzha Abi
 
 Create table
+
+regression analysis
